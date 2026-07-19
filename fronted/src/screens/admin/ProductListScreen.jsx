@@ -1,29 +1,44 @@
 import { Row, Col, Table, Button } from 'react-bootstrap';
 import { FaEdit, FaTrash } from 'react-icons/fa';
+import { useParams } from 'react-router-dom';
+import Paginate from '../../components/Paginate';
 import { LinkContainer } from 'react-router-bootstrap';
 import {   useGetProductsQuery,
   useGetProductDetailsQuery,
-  useCreateProductMutation, } from '../../slices/productsApiSlice';
+  useCreateProductMutation,
+  useDeleteProductMutation } from '../../slices/productsApiSlice';
 import Loader from '../../components/Loader';
 import Message from '../../components/Message';
 import { toast } from 'react-toastify';
 
 const ProductListScreen = () => {
+  const { pageNumber } = useParams();
 
 const {
-  data: products,
+  data,
   isLoading,
   error,
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              refetch,
-} = useGetProductsQuery();
+  refetch,
+} = useGetProductsQuery({pageNumber});
 
 
 const [createProduct, { isLoading: loadingCreate }] =
   useCreateProductMutation();
 
+const [deleteProduct, { isLoading: loadingDelete }] =
+  useDeleteProductMutation();  
 
-const deleteHandler = (id) => {
-  console.log('Delete:', id);
+
+const deleteHandler = async (id) => {
+  if (window.confirm('Are you sure?')) {
+    try {
+      await deleteProduct(id);
+      refetch(); // refresh product list
+      toast.success('Product deleted');
+    } catch (err) {
+      toast.error(err?.data?.message || err.error);
+    }
+  }
 };
 
 const createProductHandler = async () => {
@@ -52,7 +67,10 @@ const createProductHandler = async () => {
             </Button>
         </Col>
     </Row>
+
     {loadingCreate && <Loader />}
+    {loadingDelete && <Loader />}
+    
 
     {isLoading ? (
         <Loader />
@@ -74,7 +92,7 @@ const createProductHandler = async () => {
                     </tr>
                     </thead>
                     <tbody>
-                      {products.map((product) => (
+                      {data.products.map((product) => (
                         <tr key={product._id}>
                         <td>{product._id}</td>
                         <td>{product.name}</td>
@@ -106,7 +124,13 @@ const createProductHandler = async () => {
                       ))}
 
                     </tbody>
+                  
                 </Table>
+                <Paginate
+                  pages={data.pages}
+                  page={data.page}
+                  isAdmin={true}
+                />
                </>
              )}
           </>

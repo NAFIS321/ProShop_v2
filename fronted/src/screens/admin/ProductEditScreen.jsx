@@ -10,7 +10,8 @@ import FormContainer from '../../components/FormContainer'
 import {
   useGetProductDetailsQuery,
   useUpdateProductMutation,
-  useUploadProductImageMutation
+  useUploadProductImageMutation,
+
 } from '../../slices/productsApiSlice'
 
 
@@ -38,6 +39,7 @@ const [updateProduct, { isLoading: loadingUpdate }] =
   
 const [uploadProductImage, { isLoading: loadingUpload }] =
   useUploadProductImageMutation();
+  
 
 const navigate = useNavigate()
 
@@ -94,6 +96,8 @@ const submitHandler = async (e) => {
   }
 };
 
+
+
   return <>
           <Link to="/admin/productlist" className="btn btn-light my-3">
             Go Back
@@ -141,7 +145,7 @@ const submitHandler = async (e) => {
                     type="text"
                     placeholder="Enter image URL"
                     value={image}
-                    onChange={(e) => setImage}
+                    onChange={(e) => setImage(e.target.value)}
                   />
 
                   {/* File Upload Input */}
@@ -151,6 +155,8 @@ const submitHandler = async (e) => {
                     onChange={uploadFileHandler}
                   />
                 </Form.Group>
+                
+                   {/* {loadingUpload && <Loader />} */}
 
                    <Form.Group controlId="brand" className="my-2">
                 <Form.Label>Brand</Form.Label>
